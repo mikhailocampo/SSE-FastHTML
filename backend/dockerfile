@@ -1,0 +1,22 @@
+FROM python:3.10.12
+COPY --from=ghcr.io/astral-sh/uv:0.3.1 /uv /bin/uv
+
+WORKDIR /code
+
+RUN apt-get update && apt-get install -y git
+
+# Copy requirements file
+COPY requirements.txt .
+
+# Install UV package resolver
+RUN uv pip install --system ruff
+ENV UV_SYSTEM_PYTHON=1
+ENV PYTHONPATH=/code
+
+# Install dependencies
+RUN uv pip install -r requirements.txt
+
+# Copy source code
+COPY . .
+
+CMD ["fastapi", "run", "app/main.py"]
